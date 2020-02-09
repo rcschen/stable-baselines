@@ -77,6 +77,12 @@ this frequently leads to better performance.
 Looking at the training curve (episode reward function of the timesteps) is a good proxy but underestimates the agent true performance.
 
 
+.. note::
+
+	We provide an `EvalCallback` for doing such evaluation. You can read more about it in the :ref:`Callbacks <callbacks>` section.
+
+
+
 We suggest you reading `Deep Reinforcement Learning that Matters <https://arxiv.org/abs/1709.06560>`_ for a good discussion about RL evaluation.
 
 You can also take a look at this `blog post <https://openlab-flowers.inria.fr/t/how-many-random-seeds-should-i-use-statistical-power-analysis-in-deep-reinforcement-learning-experiments/457>`_

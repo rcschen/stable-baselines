@@ -136,12 +136,17 @@ Stable Baselines provides you with a set of common callbacks for:
 CheckpointCallback
 ^^^^^^^^^^^^^^^^^^
 
+Callback for saving a model every `save_freq` steps, you must specify a log folder (`save_path`)
+and optionally a prefix for the checkpoints (`rl_model` by default).
+
+
 .. code-block:: python
 
     from stable_baselines import SAC
     from stable_baselines.common.callbacks import CheckpointCallback
 
-    checkpoint_callback = CheckpointCallback(save_freq=1000, save_path='./logs/')
+    checkpoint_callback = CheckpointCallback(save_freq=1000, save_path='./logs/',
+                                             name_prefix='rl_model')
 
     model = SAC('MlpPolicy', 'Pendulum-v0')
     model.learn(2000, callback=checkpoint_callback)
@@ -150,7 +155,16 @@ CheckpointCallback
 EvalCallback
 ^^^^^^^^^^^^
 
-For proper evaluation, using a separate test environment.
+Evaluate periodically an agent, using a separate test environment.
+It will save the best model if `best_model_save_path` folder is specified and save the evaluations results in a numpy archive (`evaluations.npz`)
+if `log_path` folder is specified.
+
+
+.. note::
+
+	You can pass a child callback via the `callback_on_new_best` argument. It will be triggered each time there is a new best model.
+
+
 
 .. code-block:: python
 
@@ -161,8 +175,10 @@ For proper evaluation, using a separate test environment.
 
     # Separate evaluation env
     eval_env = gym.make('Pendulum-v0')
+    # Use deterministic actions for evaluation
     eval_callback = EvalCallback(eval_env, best_model_save_path='./logs/',
-                                 log_path='./logs/', eval_freq=500)
+                                 log_path='./logs/', eval_freq=500,
+                                 deterministic=True, render=False)
 
     model = SAC('MlpPolicy', 'Pendulum-v0')
     model.learn(5000, callback=eval_callback)
@@ -171,7 +187,9 @@ For proper evaluation, using a separate test environment.
 CallbackList
 ^^^^^^^^^^^^
 
-For chaining callbacks.
+Class for chaining callbacks, the callbacks will be called sequentially.
+Alternatively, you can pass directly a list as to the `learn()` method, it will be converted automatically to a `CallbackList`.
+
 
 .. code-block:: python
 
@@ -217,6 +235,7 @@ It must be used with the `EvalCallback` and use the event triggered by a new bes
     # Almost infinite number of timesteps, but the training will stop
     # early as soon as the reward threshold is reached
     model.learn(int(1e10), callback=eval_callback)
+
 
 EveryNTimesteps
 ^^^^^^^^^^^^^^^

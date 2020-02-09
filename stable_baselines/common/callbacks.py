@@ -131,6 +131,12 @@ class EventCallback(BaseCallback):
 
 
 class CallbackList(BaseCallback):
+    """
+    Class for chaining callbacks.
+
+    :param callbacks: (List[BaseCallback]) A list of callbacks that will be called
+        sequentially.
+    """
     def __init__(self, callbacks: List[BaseCallback]):
         super(CallbackList, self).__init__()
         assert isinstance(callbacks, list)
