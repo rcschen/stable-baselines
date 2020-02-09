@@ -1,3 +1,5 @@
+.. _examples:
+
 Examples
 ========
 
@@ -232,7 +234,7 @@ If your callback returns False, training is aborted early.
 
   # Create and wrap the environment
   env = gym.make('LunarLanderContinuous-v2')
-  env = Monitor(env, log_dir, allow_early_resets=True)
+  env = Monitor(env, log_dir)
 
   # Add some param noise for exploration
   param_noise = AdaptiveParamNoiseSpec(initial_stddev=0.1, desired_action_stddev=0.1)
