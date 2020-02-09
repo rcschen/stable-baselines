@@ -12,10 +12,10 @@ Custom Callback
 ---------------
 
 To build a custom callback, you need to create a class that derives from `BaseCallback`.
-This will give you access to events (`_on_training_start`, `_on_step`) useful variables (like `self.model` for the RL model).
+This will give you access to events (`_on_training_start`, `_on_step`) and useful variables (like `self.model` for the RL model).
 
 
-You can find two examples of custom callbacks in the documentation: one for saving the best model according to the training reward (:ref:`Examples <examples>`), and one for logging additional values with tensorboard (:ref:`TensorBoard <tensorboard>`).
+You can find two examples of custom callbacks in the documentation: one for saving the best model according to the training reward (see :ref:`Examples <examples>`), and one for logging additional values with Tensorboard (see :ref:`Tensorboard section <tensorboard>`).
 
 
 .. code-block:: python
@@ -25,9 +25,9 @@ You can find two examples of custom callbacks in the documentation: one for savi
 
     class CustomCallback(BaseCallback):
         """
-        Base class for callback.
+        A custom callback that derives from `BaseCallback`.
 
-        :param verbose: (int)
+        :param verbose: (int) Verbosity level 0: not output 1: info 2: debug
         """
         def __init__(self, verbose=0):
             super(CustomCallback, self).__init__(verbose)
@@ -50,9 +50,17 @@ You can find two examples of custom callbacks in the documentation: one for savi
             # self.parent = None  # type: Optional[BaseCallback]
 
         def _on_training_start(self) -> None:
+            """
+            This method is called before the first rollout starts.
+            """
             pass
 
         def _on_rollout_start(self) -> None:
+            """
+            A rollout is the collection of environment interaction
+            using the current policy.
+            This event is triggered before collecting new samples.
+            """
             pass
 
         def _on_step(self) -> bool:
@@ -66,31 +74,37 @@ You can find two examples of custom callbacks in the documentation: one for savi
             return True
 
         def _on_rollout_end(self) -> None:
+            """
+            This event is triggered before updating the policy.
+            """
             pass
 
         def _on_training_end(self) -> None:
+            """
+            This event is triggered before exiting the `learn()` method.
+            """
             pass
 
 
 .. note::
-  `self.num_timesteps` correspond to the total number of steps in the environment, i.e., it is the number of environments times the number of time `env.step()` was called
+  `self.num_timesteps` corresponds to the total number of steps taken in the environment, i.e., it is the number of environments multiplied by the number of time `env.step()` was called
 
   You should know that `PPO1` and `TRPO` update `self.num_timesteps` after each rollout (and not each step) because they rely on MPI.
 
 
 .. note::
 
-  For off-policy algorithms like SAC, DDPG, TD3 or DQN, the notion of `rollout` correspond to the steps taken in the environment between two updates using the replay buffer.
+  For off-policy algorithms like SAC, DDPG, TD3 or DQN, the notion of `rollout` corresponds to the steps taken in the environment between two updates.
 
 
 
 Event Callback
 --------------
 
-Compared to Keras, Stable Baselines provides a second type of `BaseCallback`, named `EventCallback` that are meant to trigger events. When an event is triggered, then a child callback is called.
+Compared to Keras, Stable Baselines provides a second type of `BaseCallback`, named `EventCallback` that is meant to trigger events. When an event is triggered, then a child callback is called.
 
 As an example, `EvalCallback` is an `EventCallback` that will trigger its child callback when there is a new best model.
-A child callback is for instance `StopTrainingOnRewardThreshold` that will stop the training if the mean reward achieved by the RL model is above a threshold.
+A child callback is for instance `StopTrainingOnRewardThreshold` that stops the training if the mean reward achieved by the RL model is above a threshold.
 
 .. note::
 
@@ -131,6 +145,7 @@ Stable Baselines provides you with a set of common callbacks for:
 - evaluating the model periodically and saving the best one (`EvalCallback`)
 - chaining callbacks (`CallbackList`)
 - triggering callback on events (`EventCallback`, `EveryNTimesteps`)
+- stopping the training early based on a reward threshold (`StopTrainingOnRewardThreshold`)
 
 
 CheckpointCallback
@@ -144,7 +159,7 @@ and optionally a prefix for the checkpoints (`rl_model` by default).
 
     from stable_baselines import SAC
     from stable_baselines.common.callbacks import CheckpointCallback
-
+    # Save a checkpoint every 1000 steps
     checkpoint_callback = CheckpointCallback(save_freq=1000, save_path='./logs/',
                                              name_prefix='rl_model')
 
@@ -155,9 +170,8 @@ and optionally a prefix for the checkpoints (`rl_model` by default).
 EvalCallback
 ^^^^^^^^^^^^
 
-Evaluate periodically an agent, using a separate test environment.
-It will save the best model if `best_model_save_path` folder is specified and save the evaluations results in a numpy archive (`evaluations.npz`)
-if `log_path` folder is specified.
+Evaluate periodically the performance of an agent, using a separate test environment.
+It will save the best model if `best_model_save_path` folder is specified and save the evaluations results in a numpy archive (`evaluations.npz`) if `log_path` folder is specified.
 
 
 .. note::
@@ -187,8 +201,8 @@ if `log_path` folder is specified.
 CallbackList
 ^^^^^^^^^^^^
 
-Class for chaining callbacks, the callbacks will be called sequentially.
-Alternatively, you can pass directly a list as to the `learn()` method, it will be converted automatically to a `CallbackList`.
+Class for chaining callbacks, they will be called sequentially.
+Alternatively, you can pass directly a list of callbacks to the `learn()` method, it will be converted automatically to a `CallbackList`.
 
 
 .. code-block:: python
@@ -215,8 +229,9 @@ Alternatively, you can pass directly a list as to the `learn()` method, it will 
 StopTrainingOnRewardThreshold
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Stop the training once a threshold in episodic reward has been reached (i.e. when the model is good enough).
+Stop the training once a threshold in episodic reward (mean episode reward over the evaluations) has been reached (i.e., when the model is good enough).
 It must be used with the `EvalCallback` and use the event triggered by a new best model.
+
 
 .. code-block:: python
 
@@ -227,7 +242,7 @@ It must be used with the `EvalCallback` and use the event triggered by a new bes
 
     # Separate evaluation env
     eval_env = gym.make('Pendulum-v0')
-    # Stop training when the model reaches
+    # Stop training when the model reaches the reward threshold
     callback_on_best = StopTrainingOnRewardThreshold(reward_threshold=-200, verbose=1)
     eval_callback = EvalCallback(eval_env, callback_on_new_best=callback_on_best, verbose=1)
 
