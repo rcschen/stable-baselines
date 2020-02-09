@@ -26,6 +26,7 @@ New Features:
 - Added `unwrap_vec_normalize` and `sync_envs_normalization` in the `vec_env` module
   to synchronize two VecNormalize environment
 - Added a seeding method for vectorized environments. (@NeoExtended)
+- Added extend method to store batches of experience in ReplayBuffer. (@solliet)
 
 
 Bug Fixes:
@@ -625,4 +626,4 @@ Thanks to @bjmuld @iambenzo @iandanforth @r7vme @brendenpetersen @huvar @abhiskk
 @XMaster96 @kantneel @Pastafarianist @GerardMaggiolino @PatrickWalter214 @yutingsz @sc420 @Aaahh @billtubbs
 @Miffyli @dwiel @miguelrass @qxcv @jaberkow @eavelardev @ruifeng96150 @pedrohbtp @srivatsankrishnan @evilsocket
 @MarvineGothic @jdossgollin @SyllogismRXS @rusu24edward @jbulow @Antymon @seheevic @justinkterry @edbeeching
-@flodorner @KuKuXia @NeoExtended
+@flodorner @KuKuXia @NeoExtended @solliet
