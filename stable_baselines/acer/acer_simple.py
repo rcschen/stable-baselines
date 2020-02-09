@@ -561,8 +561,6 @@ class ACER(ActorCriticRLModel):
                         self._train_step(obs, actions, rewards, dones, mus, self.initial_state, masks,
                                          self.num_timesteps)
 
-                self.num_timesteps += self.n_batch
-
         callback.on_training_end()
 
         return self
@@ -660,6 +658,8 @@ class _Runner(AbstractEnvRunner):
             if isinstance(self.env.action_space, Box):
                 clipped_actions = np.clip(actions, self.env.action_space.low, self.env.action_space.high)
             obs, rewards, dones, _ = self.env.step(clipped_actions)
+
+            self.model.num_timesteps += self.n_envs
 
             if self.callback is not None:
                 # Abort training early

@@ -22,9 +22,13 @@ class BaseCallback(ABC):
     """
     def __init__(self, verbose: int = 0):
         super(BaseCallback, self).__init__()
+        # The RL model
         self.model = None  # type: BaseRLModel
+        # An alias for self.model.get_env(), the environment used for training
         self.training_env = None  # type: Union[gym.Env, VecEnv, None]
+        # Number of time the callback was called
         self.n_calls = 0  # type: int
+        # n_envs * n times env.step() was called
         self.num_timesteps = 0  # type: int
         self.verbose = verbose
         self.locals = None  # type: Dict[str, Any]
@@ -76,8 +80,7 @@ class BaseCallback(ABC):
         :return: (bool) If the callback returns False, training is aborted early.
         """
         self.n_calls += 1
-        # timesteps start at zero
-        self.num_timesteps = self.model.num_timesteps + 1
+        self.num_timesteps = self.model.num_timesteps
 
         return self._on_step()
 
@@ -323,7 +326,7 @@ class StopTrainingOnRewardThreshold(BaseCallback):
         self.reward_threshold = reward_threshold
 
     def _on_step(self) -> bool:
-        assert self.parent is not None, ("`StopTrainingOnMinimumReward` callback must be used "
+        assert self.parent is not None, ("`StopTrainingOnRewardThreshold` callback must be used "
                                          "with an `EvalCallback`")
         # Convert np.bool to bool, otherwise callback() is False won't work
         continue_training = bool(self.parent.best_mean_reward < self.reward_threshold)

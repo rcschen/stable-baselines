@@ -329,6 +329,8 @@ class TD3(OffPolicyRLModel):
 
                 new_obs, reward, done, info = self.env.step(unscaled_action)
 
+                self.num_timesteps += 1
+
                 # Only stop training if return value is False, not when it is None. This is for backwards
                 # compatibility with callbacks that have no return statement.
                 if callback() is False:
@@ -396,7 +398,6 @@ class TD3(OffPolicyRLModel):
                     mean_reward = round(float(np.mean(episode_rewards[-101:-1])), 1)
 
                 num_episodes = len(episode_rewards)
-                self.num_timesteps += 1
                 # Display training infos
                 if self.verbose >= 1 and done and log_interval is not None and len(episode_rewards) % log_interval == 0:
                     fps = int(step / (time.time() - start_time))

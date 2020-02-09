@@ -46,6 +46,8 @@ Bug Fixes:
 - Fixed a bug in `check_env` where it would fail on high dimensional action spaces
 - Fixed `Monitor.close()` that was not calling the parent method
 - Fixed a bug in `BaseRLModel` when seeding vectorized environments. (@NeoExtended)
+- Fixed `num_timesteps` computation to be consistent between algorithms (updated after `env.step()`)
+  Only `TRPO` and `PPO1` update it differently (after synchronization) because they rely on MPI
 
 Deprecations:
 ^^^^^^^^^^^^^

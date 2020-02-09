@@ -240,7 +240,9 @@ class A2C(ActorCriticRLModel):
 
                 callback.on_rollout_start()
                 # true_reward is the reward without discount
-                obs, states, rewards, masks, actions, values, ep_infos, true_reward = self.runner.run(callback)
+                rollout = self.runner.run(callback)
+                # unpack
+                obs, states, rewards, masks, actions, values, ep_infos, true_reward = rollout
 
                 callback.on_rollout_end()
 
@@ -260,7 +262,6 @@ class A2C(ActorCriticRLModel):
                                                 masks.reshape((self.n_envs, self.n_steps)),
                                                 writer, self.num_timesteps)
 
-                self.num_timesteps += self.n_batch
 
                 if self.verbose >= 1 and (update % log_interval == 0 or update == 1):
                     explained_var = explained_variance(values, rewards)
@@ -339,6 +340,8 @@ class A2CRunner(AbstractEnvRunner):
             if isinstance(self.env.action_space, gym.spaces.Box):
                 clipped_actions = np.clip(actions, self.env.action_space.low, self.env.action_space.high)
             obs, rewards, dones, infos = self.env.step(clipped_actions)
+
+            self.model.num_timesteps += self.n_envs
 
             if self.callback is not None:
                 # Abort training early

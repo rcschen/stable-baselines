@@ -338,9 +338,11 @@ class ACKTR(ActorCriticRLModel):
                 # true_reward is the reward without discount
                 if isinstance(self.runner, PPO2Runner):
                     # We are using GAE
-                    obs, returns, masks, actions, values, _, states, ep_infos, true_reward = self.runner.run(callback)
+                    rollout = self.runner.run(callback)
+                    obs, returns, masks, actions, values, _, states, ep_infos, true_reward = rollout
                 else:
-                    obs, states, returns, masks, actions, values, ep_infos, true_reward = self.runner.run(callback)
+                    rollout = self.runner.run(callback)
+                    obs, states, returns, masks, actions, values, ep_infos, true_reward = rollout
                 # pytype:enable=bad-unpacking
 
                 callback.on_rollout_end()
@@ -376,8 +378,6 @@ class ACKTR(ActorCriticRLModel):
                         logger.logkv('ep_reward_mean', safe_mean([ep_info['r'] for ep_info in self.ep_info_buf]))
                         logger.logkv('ep_len_mean', safe_mean([ep_info['l'] for ep_info in self.ep_info_buf]))
                     logger.dump_tabular()
-
-                self.num_timesteps += self.n_batch + 1
 
             coord.request_stop()
             coord.join(enqueue_threads)

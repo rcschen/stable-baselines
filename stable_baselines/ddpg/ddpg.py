@@ -889,12 +889,11 @@ class DDPG(OffPolicyRLModel):
 
                             new_obs, reward, done, info = self.env.step(unscaled_action)
 
-                            if callback is not None:
-                                # Only stop training if return value is False, not when it is None.
-                                # This is for backwards compatibility with callbacks that have no return statement.
-                                if callback() is False:
-                                    callback.on_training_end()
-                                    return self
+                            self.num_timesteps += 1
+
+                            if callback() is False:
+                                callback.on_training_end()
+                                return self
 
                             if writer is not None:
                                 ep_rew = np.array([reward]).reshape((1, -1))
@@ -903,7 +902,6 @@ class DDPG(OffPolicyRLModel):
                                                             writer, self.num_timesteps)
                             step += 1
                             total_steps += 1
-                            self.num_timesteps += 1
                             if rank == 0 and self.render:
                                 self.env.render()
                             episode_reward += reward

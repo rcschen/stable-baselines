@@ -332,7 +332,9 @@ class PPO2(ActorCriticRLModel):
 
                 callback.on_rollout_start()
                 # true_reward is the reward without discount
-                obs, returns, masks, actions, values, neglogpacs, states, ep_infos, true_reward = self.runner.run(callback)
+                rollout = self.runner.run(callback)
+                # Unpack
+                obs, returns, masks, actions, values, neglogpacs, states, ep_infos, true_reward = rollout
 
                 callback.on_rollout_end()
 
@@ -340,7 +342,6 @@ class PPO2(ActorCriticRLModel):
                 if not self.runner.continue_training:
                     break
 
-                self.num_timesteps += self.n_batch
                 self.ep_info_buf.extend(ep_infos)
                 mb_loss_vals = []
                 if states is None:  # nonrecurrent version
@@ -478,6 +479,8 @@ class Runner(AbstractEnvRunner):
             if isinstance(self.env.action_space, gym.spaces.Box):
                 clipped_actions = np.clip(actions, self.env.action_space.low, self.env.action_space.high)
             self.obs[:], rewards, self.dones, infos = self.env.step(clipped_actions)
+
+            self.model.num_timesteps += self.n_envs
 
             if self.callback is not None:
                 # Abort training early

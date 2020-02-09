@@ -216,6 +216,8 @@ class DQN(OffPolicyRLModel):
                 reset = False
                 new_obs, rew, done, info = self.env.step(env_action)
 
+                self.num_timesteps += 1
+
                 # Stop training if return value is False
                 if callback() is False:
                     break
@@ -306,7 +308,6 @@ class DQN(OffPolicyRLModel):
                                           int(100 * self.exploration.value(self.num_timesteps)))
                     logger.dump_tabular()
 
-                self.num_timesteps += 1
         callback.on_training_end()
         return self
 
