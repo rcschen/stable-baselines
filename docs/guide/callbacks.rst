@@ -91,6 +91,8 @@ You can find two examples of custom callbacks in the documentation: one for savi
 
   You should know that `PPO1` and `TRPO` update `self.num_timesteps` after each rollout (and not each step) because they rely on MPI.
 
+  For the other algorithms, `self.num_timesteps` is incremented by `n_envs` (number of environments) after each call to `env.step()`
+
 
 .. note::
 
