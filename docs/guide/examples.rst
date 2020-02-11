@@ -78,7 +78,7 @@ In the following example, we will train, save and load a DQN model on the Lunar 
   model = DQN.load("dqn_lunar")
 
   # Evaluate the agent
-  mean_reward, n_steps = evaluate_policy(model, model.get_env(), n_eval_episodes=10)
+  mean_reward, std_reward = evaluate_policy(model, model.get_env(), n_eval_episodes=10)
 
   # Enjoy trained agent
   obs = env.reset()
