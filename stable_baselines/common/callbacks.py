@@ -1,5 +1,5 @@
 import os
-from abc import ABC, abstractmethod
+from abc import ABC
 import warnings
 import typing
 from typing import Union, List, Dict, Any, Optional
@@ -276,7 +276,7 @@ class EvalCallback(EventCallback):
 
     def _init_callback(self):
         # Does not work in some corner cases, where the wrapper is not the same
-        if not (type(self.training_env) is type(self.eval_env)):
+        if not type(self.training_env) is type(self.eval_env):
             warnings.warn("Training and eval env are not of the same type"
                           "{} != {}".format(self.training_env, self.eval_env))
 
