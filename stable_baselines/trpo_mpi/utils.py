@@ -111,7 +111,7 @@ def traj_segment_generator(policy, env, horizon, reward_giver=None, gail=False, 
             true_reward = reward
 
         if callback is not None:
-            if callback() is False:
+            if callback.on_step() is False:
                 # We have to return everything so pytype does not complain
                 yield {
                     "observations": observations,

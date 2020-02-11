@@ -219,7 +219,7 @@ class DQN(OffPolicyRLModel):
                 self.num_timesteps += 1
 
                 # Stop training if return value is False
-                if callback() is False:
+                if callback.on_step() is False:
                     break
 
                 # Store transition in the replay buffer.

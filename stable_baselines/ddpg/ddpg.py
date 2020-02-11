@@ -891,7 +891,7 @@ class DDPG(OffPolicyRLModel):
 
                             self.num_timesteps += 1
 
-                            if callback() is False:
+                            if callback.on_step() is False:
                                 callback.on_training_end()
                                 return self
 

@@ -1,12 +1,13 @@
 import os
 from abc import ABC, abstractmethod
+import warnings
 import typing
 from typing import Union, List, Dict, Any, Optional
 
 import gym
 import numpy as np
 
-from stable_baselines.common.vec_env import VecEnv, sync_envs_normalization
+from stable_baselines.common.vec_env import VecEnv, sync_envs_normalization, DummyVecEnv
 from stable_baselines.common.evaluation import evaluate_policy
 from stable_baselines import logger
 
@@ -67,16 +68,20 @@ class BaseCallback(ABC):
     def _on_rollout_start(self) -> None:
         pass
 
-    @abstractmethod
     def _on_step(self) -> bool:
         """
         :return: (bool) If the callback returns False, training is aborted early.
         """
         return True
 
-    def __call__(self) -> bool:
+    def on_step(self) -> bool:
         """
-        This method will be called by the model. This is the equivalent to the callback function.
+        This method will be called by the model after each call to `env.step()`.
+        This is the equivalent to the callback function in previous versions.
+
+        For child callback (of an `EventCallback`), this will be called
+        when the event is triggered.
+
         :return: (bool) If the callback returns False, training is aborted early.
         """
         self.n_calls += 1
@@ -123,7 +128,7 @@ class EventCallback(BaseCallback):
 
     def _on_event(self) -> bool:
         if self.callback is not None:
-            return self.callback()
+            return self.callback.on_step()
         return True
 
     def _on_step(self) -> bool:
@@ -161,7 +166,7 @@ class CallbackList(BaseCallback):
             # callback.num_timesteps = self.num_timesteps
             # callback.n_calls = self.n_calls
             # Return False (stop training) if at least one callback returns False
-            continue_training = callback() and continue_training
+            continue_training = callback.on_step() and continue_training
         return continue_training
 
     def _on_rollout_end(self) -> None:
@@ -249,11 +254,15 @@ class EvalCallback(EventCallback):
         self.n_eval_episodes = n_eval_episodes
         self.eval_freq = eval_freq
         self.best_mean_reward = -np.inf
+        self.last_mean_reward = -np.inf
         self.deterministic = deterministic
         self.render = render
 
-        if isinstance(eval_env, VecEnv):
-            assert eval_env.num_envs == 1, "You must pass only one environment for evaluation"
+        # Convert to VecEnv for consistency
+        if not isinstance(eval_env, VecEnv):
+            eval_env = DummyVecEnv([lambda: eval_env])
+
+        assert eval_env.num_envs == 1, "You must pass only one environment for evaluation"
 
         self.eval_env = eval_env
         self.best_model_save_path = best_model_save_path
@@ -266,9 +275,10 @@ class EvalCallback(EventCallback):
         self.evaluations_length = []
 
     def _init_callback(self):
-        # Does not work when eval_env is a gym.Env and training_env is a VecEnv
-        # assert type(self.training_env) is type(self.eval_env), ("training and eval env are not of the same type",
-        #                                                         "{} != {}".format(self.training_env, self.eval_env))
+        # Does not work in some corner cases, where the wrapper is not the same
+        if not (type(self.training_env) is type(self.eval_env)):
+            warnings.warn("Training and eval env are not of the same type"
+                          "{} != {}".format(self.training_env, self.eval_env))
 
         # Create folders if needed
         if self.best_model_save_path is not None:
@@ -297,6 +307,8 @@ class EvalCallback(EventCallback):
 
             mean_reward, std_reward = np.mean(episode_rewards), np.std(episode_rewards)
             mean_ep_length, std_ep_length = np.mean(episode_lengths), np.std(episode_lengths)
+            # Keep track of the last evaluation, useful for classes that derive from this callback
+            self.last_mean_reward = mean_reward
 
             if self.verbose > 0:
                 print("Eval num_timesteps={}, "
@@ -334,7 +346,7 @@ class StopTrainingOnRewardThreshold(BaseCallback):
     def _on_step(self) -> bool:
         assert self.parent is not None, ("`StopTrainingOnRewardThreshold` callback must be used "
                                          "with an `EvalCallback`")
-        # Convert np.bool to bool, otherwise callback() is False won't work
+        # Convert np.bool to bool, otherwise callback.on_step() is False won't work
         continue_training = bool(self.parent.best_mean_reward < self.reward_threshold)
         if self.verbose > 0 and not continue_training:
             print("Stopping training because the mean reward {:.2f} "

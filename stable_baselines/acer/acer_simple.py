@@ -663,7 +663,7 @@ class _Runner(AbstractEnvRunner):
 
             if self.callback is not None:
                 # Abort training early
-                if self.callback() is False:
+                if self.callback.on_step() is False:
                     self.continue_training = False
                     # Return dummy values
                     return [None] * 7
