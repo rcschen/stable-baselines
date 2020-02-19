@@ -332,7 +332,12 @@ def outer_scope_getter(scope, new_scope=""):
     :return: (function (function, str, ``*args``, ``**kwargs``): Tensorflow Tensor)
     """
     def _getter(getter, name, *args, **kwargs):
+        
         name = name.replace(scope + "/", new_scope, 1)
+        print('==name==> {}'.format(name))
+        print('==args==> {}'.format(args))
+        print('==kwargs==> {}'.format(kwargs))
+
         val = getter(name, *args, **kwargs)
         return val
     return _getter
