@@ -136,6 +136,9 @@ class A2C(ActorCriticRLModel):
                     # and https://github.com/dennybritz/reinforcement-learning/issues/34
                     # suggest to add an entropy component in order to improve exploration.
                     loss = self.pg_loss - self.entropy * self.ent_coef + self.vf_loss * self.vf_coef
+                    loss = tf.Print(loss, ['loss: ', loss], summarize=100)
+                    self.pg_loss = tf.Print(self.pg_loss, ['pg_loss: ', self.pg_loss], summarize=100)
+                    self.vf_loss = tf.Print(self.vf_loss, ['vf_loss: ', self.vf_loss], summarize=100)
 
                     tf.summary.scalar('entropy_loss', self.entropy)
                     tf.summary.scalar('policy_gradient_loss', self.pg_loss)

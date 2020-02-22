@@ -95,6 +95,13 @@ class ProbabilityDistributionType(object):
         :param flat: ([float]) the flat probabilities
         :return: (ProbabilityDistribution) the instance of the ProbabilityDistribution associated
         """
+        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1')
+        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1')
+        print(self.probability_distribution_class())
+
+        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1')
+        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1')
+
         return self.probability_distribution_class()(flat)
 
     def proba_distribution_from_latent(self, pi_latent_vector, vf_latent_vector, init_scale=1.0, init_bias=0.0):
@@ -233,6 +240,12 @@ class DiagGaussianProbabilityDistributionType(ProbabilityDistributionType):
         :param flat: ([float]) the flat probabilities
         :return: (ProbabilityDistribution) the instance of the ProbabilityDistribution associated
         """
+        print('****************************')
+        print('****************************')
+        print(self.probability_distribution_class())
+        print('****************************')
+        print('****************************')
+
         return self.probability_distribution_class()(flat)
 
     def proba_distribution_from_latent(self, pi_latent_vector, vf_latent_vector, init_scale=1.0, init_bias=0.0):
@@ -314,11 +327,14 @@ class CategoricalProbabilityDistribution(ProbabilityDistribution):
         return tf.reduce_sum(p_0 * (a_0 - tf.log(z_0) - a_1 + tf.log(z_1)), axis=-1)
 
     def entropy(self):
+#        self.logits = tf.Print(self.logits, ['LLLLLLLLLLLLLLLLLLLLLLLLL',self.logits], summarize=100)
         a_0 = self.logits - tf.reduce_max(self.logits, axis=-1, keepdims=True)
         exp_a_0 = tf.exp(a_0)
         z_0 = tf.reduce_sum(exp_a_0, axis=-1, keepdims=True)
         p_0 = exp_a_0 / z_0
-        return tf.reduce_sum(p_0 * (tf.log(z_0) - a_0), axis=-1)
+        res =  tf.reduce_sum(p_0 * (tf.log(z_0) - a_0), axis=-1)
+#        res = tf.Print(res, ['>>>>>>>>>>>>.', res], summarize=100)
+        return res
 
     def sample(self):
         # Gumbel-max trick to sample
@@ -483,6 +499,7 @@ def make_proba_dist_type(ac_space):
     :param ac_space: (Gym Space) the input action space
     :return: (ProbabilityDistributionType) the appropriate instance of a ProbabilityDistributionType
     """
+    print('???????????????????????????',ac_space)
     if isinstance(ac_space, spaces.Box):
         assert len(ac_space.shape) == 1, "Error: the action space must be a vector"
         return DiagGaussianProbabilityDistributionType(ac_space.shape[0])
