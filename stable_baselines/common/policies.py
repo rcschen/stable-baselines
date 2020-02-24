@@ -244,6 +244,7 @@ class ActorCriticPolicy(BasePolicy):
                                      for categorical in self.proba_distribution.categoricals]
             else:
                 self._policy_proba = []  # it will return nothing, as it is not implemented
+            print('self.value_fn:{}',self.value_fn)
             self._value_flat = self.value_fn[:, 0]
 
     @property
@@ -566,7 +567,7 @@ class FeedForwardPolicy(ActorCriticPolicy):
                 pi_latent, vf_latent = mlp_extractor(tf.layers.flatten(self.processed_obs), net_arch, act_fun)
 
             self._value_fn = linear(vf_latent, 'vf', 1)
-
+            self._value_fn = tf.Print(self._value_fn, ['self._value_fn', self._value_fn], summarize=100) 
             self._proba_distribution, self._policy, self.q_value = \
                 self.pdtype.proba_distribution_from_latent(pi_latent, vf_latent, init_scale=0.01)
 

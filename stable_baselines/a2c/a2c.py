@@ -356,7 +356,16 @@ class A2CRunner(AbstractEnvRunner):
         true_rewards = np.copy(mb_rewards)
         last_values = self.model.value(self.obs, self.states, self.dones).tolist()
         # discount/bootstrap off value fn
+        print('mb_rewards.shape:{}'.format(mb_rewards.shape))
+        print('mb_done:{}'.format(mb_dones.shape))
+        print('last_values:{}'.format(last_values))
+
         for n, (rewards, dones, value) in enumerate(zip(mb_rewards, mb_dones, last_values)):
+            print('=========={}=========='.format(n))
+            print('rewards:{}'.format(rewards))
+            print('dones:{}'.format(dones))
+            print('value:{}'.format(value))
+
             rewards = rewards.tolist()
             dones = dones.tolist()
             if dones[-1] == 0:

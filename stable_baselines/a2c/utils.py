@@ -301,6 +301,9 @@ def discount_with_dones(rewards, dones, gamma):
     :param gamma: (float) The discount value
     :return: ([float]) The discounted rewards
     """
+    print('discount_with_dones >>> rewards:{}'.format(rewards))
+    print('discount_with_dones >>> dones:{}'.format(dones))
+
     discounted = []
     ret = 0  # Return: discounted reward
     for reward, done in zip(rewards[::-1], dones[::-1]):
