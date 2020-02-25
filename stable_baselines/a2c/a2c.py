@@ -373,7 +373,8 @@ class A2CRunner(AbstractEnvRunner):
             else:
                 rewards = discount_with_dones(rewards, dones, self.gamma)
             mb_rewards[n] = rewards
-
+            print('runrunrun:rewards:{}'.format(rewards))
+        print('runrunrun:mb_rewards:{}'.format(mb_rewards))
         # convert from [n_env, n_steps, ...] to [n_steps * n_env, ...]
         mb_rewards = mb_rewards.reshape(-1, *mb_rewards.shape[2:])
         mb_actions = mb_actions.reshape(-1, *mb_actions.shape[2:])
