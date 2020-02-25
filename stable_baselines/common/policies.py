@@ -98,6 +98,7 @@ class BasePolicy(ABC):
     :param n_env: (int) The number of environments to run
     :param n_steps: (int) The number of steps to run for each environment
     :param n_batch: (int) The number of batches to run (n_envs * n_steps)
+w
     :param reuse: (bool) If the policy is reusable or not
     :param scale: (bool) whether or not to scale the input
     :param obs_phs: (TensorFlow Tensor, TensorFlow Tensor) a tuple containing an override for observation placeholder
@@ -579,6 +580,10 @@ class FeedForwardPolicy(ActorCriticPolicy):
         else:
             action, value, neglogp = self.sess.run([self.action, self.value_flat, self.neglogp],
                                                    {self.obs_ph: obs})
+        print('self.initial_stateself.initial_stateself.initial_stateself.initial_state')
+        print(self.initial_state)
+        print('self.initial_stateself.initial_stateself.initial_stateself.initial_state')
+
         return action, value, self.initial_state, neglogp
 
     def proba_step(self, obs, state=None, mask=None):
