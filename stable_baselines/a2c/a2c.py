@@ -358,6 +358,7 @@ class A2CRunner(AbstractEnvRunner):
             dones = dones.tolist()
             if dones[-1] == 0:
                 rewards = discount_with_dones(rewards + [value], dones + [0], self.gamma)[:-1]
+                print('--------------------------> rewards: {}'.format(rewards))
             else:
                 rewards = discount_with_dones(rewards, dones, self.gamma)
             mb_rewards[n] = rewards
